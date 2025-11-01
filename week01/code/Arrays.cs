@@ -1,33 +1,63 @@
+using System.Collections.Generic;
+using System.Linq;
+
+
 public static class Arrays
 {
-    /// <summary>
-    /// This function will produce an array of size 'length' starting with 'number' followed by multiples of 'number'.  For 
-    /// example, MultiplesOf(7, 5) will result in: {7, 14, 21, 28, 35}.  Assume that length is a positive
-    /// integer greater than 0.
-    /// </summary>
-    /// <returns>array of doubles that are the multiples of the supplied number</returns>
-    public static double[] MultiplesOf(double number, int length)
+    /// <param name="start">The starting number (the first multiple).</param>
+    /// <param name="count">The number of multiples to generate.</param>
+    /// <returns>A new array containing the requested multiples.</returns>
+    public static double[] MultiplesOf(double start, int count)
     {
-        // TODO Problem 1 Start
-        // Remember: Using comments in your program, write down your process for solving this problem
-        // step by step before you write the code. The plan should be clear enough that it could
-        // be implemented by another person.
+        // 1# Plan: Multiples Of
+        // 1- Create a new double array named 'result' with the size specified by 'count'.
+        // 2- Loop through the array from index 0 up to 'count - 1'. This loop structure ensures we populate every element of the new array.
+        // 3- For each index 'i', calculate the corresponding multiple. Since 'i' starts at 0, the multiple number needed is (i + 1).
+        // 4- The calculation for the value is: start * (i + 1).
+        // 5- Store the calculated value in result[i].
+        // 6- Return the completed 'result' array.
+        
+        double[] result = new double[count];
 
-        return []; // replace this return statement with your own
+        for (int i = 0; i < count; i++)
+        {
+            result[i] = start * (i + 1);
+        }
+        
+        return result;
     }
 
-    /// <summary>
-    /// Rotate the 'data' to the right by the 'amount'.  For example, if the data is 
-    /// List<int>{1, 2, 3, 4, 5, 6, 7, 8, 9} and an amount is 3 then the list after the function runs should be 
-    /// List<int>{7, 8, 9, 1, 2, 3, 4, 5, 6}.  The value of amount will be in the range of 1 to data.Count, inclusive.
-    ///
-    /// Because a list is dynamic, this function will modify the existing data list rather than returning a new list.
-    /// </summary>
-    public static void RotateListRight(List<int> data, int amount)
+    /// <param name="data">The list of integers to rotate.</param>
+    /// <param name="amount">The number of positions to rotate right.</param>
+    /// <returns>The modified list (for convenience).</returns>
+    public static List<int> RotateListRight(List<int> data, int amount)
     {
-        // TODO Problem 2 Start
-        // Remember: Using comments in your program, write down your process for solving this problem
-        // step by step before you write the code. The plan should be clear enough that it could
-        // be implemented by another person.
+        // 2# Plan: Rotate Right
+        // 1- Handle edge cases: If the list is null, empty, or the amount is 0, return the list.
+        // 2- Determine the starting index for the sub-list (the 'tail') that will move to the front. This index is data.Count - amount.
+        // 3- Remove the 'tail' section from the end of the original 'data' list using List<T>.RemoveRange(startIndex, amount).
+        // 4- Insert the stored 'tailToMove' list at the beginning of 'data' (index 0) using List<T>.InsertRange(0, tailToMove).
+        // 5- Return the modified 'data' list.
+
+        if (data == null || data.Count == 0 || amount <= 0)
+        {
+            return data;
+        }
+
+        int count = data.Count;
+        
+        int effectiveAmount = amount % count;
+        if (effectiveAmount == 0)
+            return data;
+
+        int startIndex = count - effectiveAmount;
+
+        List<int> tailToMove = data.GetRange(startIndex, effectiveAmount);
+
+        data.RemoveRange(startIndex, effectiveAmount);
+
+        data.InsertRange(0, tailToMove);
+
+        return data;
     }
 }
