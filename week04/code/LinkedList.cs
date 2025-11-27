@@ -1,161 +1,218 @@
-class Node:
-    """Represents a node in a doubly linked list."""
-    def __init__(self, data: int):
-        self.data = data
-        self.next: 'Node | None' = None
-        self.prev: 'Node | None' = None
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
-class LinkedList:
-    """
-    A doubly linked list implementation.
-    The class implements the iterable protocol for forward iteration.
-    """
-    def __init__(self):
-        self._head: 'Node | None' = None
-        self._tail: 'Node | None' = None
+namespace CustomLinkedList
+{
+    public class LinkedList<T> : IEnumerable<T>
+    {
+        private class Node
+        {
+            public T Data;
+            public Node Next;
+            public Node(T data)
+            {
+                Data = data;
+                Next = null;
+            }
+        }
 
-    # --- Core Methods (C# Translation) ---
+        private Node head;
+        private Node tail;
 
-    def insert_head(self, value: int):
-        """Insert a new node at the front (i.e. the head) of the linked list."""
-        new_node = Node(value)
-        if self._head is None:
-            # If the list is empty, then point both head and tail to the new node.
-            self._head = new_node
-            self._tail = new_node
-        else:
-            # If the list is not empty, then only head will be affected.
-            new_node.next = self._head    # Connect new node to the previous head
-            self._head.prev = new_node    # Connect the previous head to the new node
-            self._head = new_node         # Update the head to point to the new node
+        public LinkedList()
+        {
+            head = null;
+            tail = null;
+        }
+        public bool IsEmpty()
+        {
+            return head == null;
+        }
 
-    def remove_head(self):
-        """Remove the first node (i.e. the head) of the linked list."""
-        if self._head is None:
-            return # List is empty
+        // Problem 1: Insert the Tail
+        public void AddTail(T item)
+        {
+            Node newNode = new Node(item);
+            if (IsEmpty())
+            {
+                head = newNode;
+                tail = newNode;
+            }
+            else
+            {
+                tail.Next = newNode;
+                tail = newNode;
+            }
+        }
 
-        if self._head == self._tail:
-            # If the list has only one item in it, then set head and tail to None.
-            self._head = None
-            self._tail = None
-        else:
-            # If the list has more than one item in it, then only the head will be affected.
-            self._head = self._head.next
-            if self._head is not None:
-                self._head.prev = None # Disconnect the second node from the first node
+        // Problem 2: Remove the Tail
+        public bool RemoveTail()
+        {
+            if (IsEmpty())
+            {
+                return false;
+            }
 
-    def insert_after(self, value: int, new_value: int):
-        """Insert 'newValue' after the first occurrence of 'value' in the linked list."""
-        curr = self._head
-        while curr is not None:
-            if curr.data == value:
-                # If the location of 'value' is at the end of the list,
-                # then we can call insert_tail to add 'new_value'
-                if curr == self._tail:
-                    self.insert_tail(new_value)
-                # For any other location of 'value', need to create a 
-                # new node and reconnect the links to insert.
-                else:
-                    new_node = Node(new_value)
-                    new_node.prev = curr              # Connect new node to the node containing 'value'
-                    new_node.next = curr.next         # Connect new node to the node after 'value'
-                    curr.next.prev = new_node         # Connect node after 'value' to the new node
-                    curr.next = new_node              # Connect the node containing 'value' to the new node
-                
-                return # We can exit the function after we insert
+            if (head == tail) // Only 1 node
+            {
+                head = null;
+                tail = null;
+                return true;
+            }
 
-            curr = curr.next # Go to the next node to search for 'value'
+            // more than 1 node: need to traverse!!
+            Node current = head;
+            while (current.Next != tail)
+            {
+                current = current.Next;
+            }
+            // current is now the node before tail
+            current.Next = null;
+            tail = current;
+            return true;
+        }
 
-    # --- Problem 1: Insert Tail ---
+        // Problem 3: Remove (1th occurrence of item)
+        public bool Remove(T item)
+        {
+            if (IsEmpty())
+                return false;
 
-    def insert_tail(self, value: int):
-        """Insert a new node at the back (i.e. the tail) of the linked list."""
-        new_node = Node(value)
-        if self._tail is None:
-            # List is empty
-            self._head = new_node
-            self._tail = new_node
-        else:
-            # List is not empty
-            new_node.prev = self._tail
-            self._tail.next = new_node
-            self._tail = new_node
+            Node current = head;
+            Node previous = null;
 
-    # --- Problem 2: Remove Tail ---
+            while (current != null && !current.Data.Equals(item))
+            {
+                previous = current;
+                current = current.Next;
+            }
 
-    def remove_tail(self):
-        """Remove the last node (i.e. the tail) of the linked list."""
-        if self._tail is None:
-            return # List is empty, nothing to do
-        
-        if self._head == self._tail:
-            # Only one node
-            self._head = None
-            self._tail = None
-        else:
-            # More than one node
-            self._tail = self._tail.prev
-            if self._tail is not None:
-                self._tail.next = None
+            if (current == null)
+            {
+                return false; // not found :)
+            }
 
-    # --- Problem 3: Remove ---
+            // found
+            if (previous == null)
+            {
+                // removing head
+                head = current.Next;
+                if (head == null)
+                {
+                    tail = null;
+                }
+            }
+            else
+            {
+                previous.Next = current.Next;
+                if (previous.Next == null)
+                {
+                    tail = previous;
+                }
+            }
 
-    def remove(self, value: int):
-        """Remove the first node that contains 'value'."""
-        curr = self._head
-        while curr is not None:
-            if curr.data == value:
-                if curr == self._head:
-                    self.remove_head()
-                elif curr == self._tail:
-                    self.remove_tail()
-                else:
-                    # Node is in the middle
-                    curr.prev.next = curr.next
-                    curr.next.prev = curr.prev
-                
-                return # Found and removed the first instance
+            return true;
+        }
 
-            curr = curr.next
+        // Problem 4: Replace (replace 1th occurrence of oldValue with newValue)
+        public bool Replace(T oldValue, T newValue)
+        {
+            Node current = head;
+            while (current != null)
+            {
+                if (current.Data.Equals(oldValue))
+                {
+                    current.Data = newValue;
+                    return true;
+                }
+                current = current.Next;
+            }
+            return false; // not found
+        }
 
-    # --- Problem 4: Replace ---
+        // Problem 5: Reversed Iterator
+        public IEnumerable<T> GetReversed()
+        {
+            // Colect and enumerate
+            Stack<T> stack = new Stack<T>();
+            Node current = head;
+            while (current != null)
+            {
+                stack.Push(current.Data);
+                current = current.Next;
+            }
 
-    def replace(self, old_value: int, new_value: int):
-        """Search for all instances of 'oldValue' and replace the value to 'newValue'."""
-        curr = self._head
-        while curr is not None:
-            if curr.data == old_value:
-                curr.data = new_value
-            curr = curr.next
+            while (stack.Count > 0)
+            {
+                yield return stack.Pop();
+            }
+        }
 
-    # --- Problem 5: Reversed Iterator ---
+        // IEnumerable<T> implementation to allow foreach
+        public IEnumerator<T> GetEnumerator()
+        {
+            Node current = head;
+            while (current != null)
+            {
+                yield return current.Data;
+                current = current.Next;
+            }
+        }
 
-    def reverse(self):
-        """Iterate backward through the Linked List (Problem 5)."""
-        curr = self._tail # Start at the back
-        while curr is not None:
-            yield curr.data # Provide (yield) each item to the user
-            curr = curr.prev # Go backward in the linked list
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
-    # --- Iterator & String Methods ---
+        // For testing/debug
+        public override string ToString()
+        {
+            List<string> items = new List<string>();
+            foreach (var x in this)
+            {
+                items.Add(x?.ToString());
+            }
+            return "[" + string.Join(" -> ", items) + "]";
+        }
+    }
 
-    def __iter__(self):
-        """Iterate forward through the LinkedList (forward iteration)."""
-        curr = self._head
-        while curr is not None:
-            yield curr.data
-            curr = curr.next
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            LinkedList<int> list = new LinkedList<int>();
 
-    def __str__(self):
-        """Returns a strimg representation of the linked list."""
-        return f"<LinkedList>{{{', '.join(map(str, self))}}}"
+            // Test Insert Tail
+            list.AddTail(1);
+            list.AddTail(2);
+            list.AddTail(3);
+            Console.WriteLine("After AddTail: " + list);
 
-    # --- Test Methods (C# Translation) ---
+            // Test Remove
+            list.Remove(2);
+            Console.WriteLine("After Remove(2): " + list);
 
-    def head_and_tail_are_null(self) -> bool:
-        """This is only for check if the head and the tail are null."""
-        return self._head is None and self._tail is None
+            // Test Replace
+            list.Replace(3, 42);
+            Console.WriteLine("After Replace(3 -> 42): " + list);
 
-    def head_and_tail_are_not_null(self) -> bool:
-        """This is only for check if the head and the tail are null."""
-        return self._head is not None and self._tail is not None
+            // Test Remove Tail
+            list.RemoveTail();
+            Console.WriteLine("After RemoveTail: " + list);
+
+            // Add moree
+            list.AddTail(5);
+            list.AddTail(6);
+            Console.WriteLine("Add more tail: " + list);
+
+            // Test reversed Iterator
+            Console.Write("Reversed iteration: ");
+            foreach (var x in list.GetReversed())
+            {
+                Console.Write(x + " ");
+            }
+            Console.WriteLine();
+        }
+    }
+}
